@@ -16,42 +16,42 @@ class Paper {
   rotating = false;
 
   init(paper) {
-    // Mouse events
+    // Handle mouse move
     document.addEventListener('mousemove', (e) => {
       this.handleMove(e.clientX, e.clientY);
     });
 
+    // Handle touch move
+    document.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      this.handleMove(touch.clientX, touch.clientY);
+    }, { passive: false });
+
+    // Handle mouse down
     paper.addEventListener('mousedown', (e) => {
-      if (this.holdingPaper) return;
       this.handleStart(e.clientX, e.clientY, e.button);
     });
 
+    // Handle touch start
+    paper.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      this.handleStart(touch.clientX, touch.clientY, 0); // Treat touch as left-click (button 0)
+    }, { passive: false });
+
+    // Handle mouse up
     window.addEventListener('mouseup', () => {
       this.handleEnd();
     });
 
-    // Touch events
-    document.addEventListener('touchmove', (e) => {
-      e.preventDefault(); // Prevent default touch behavior like scrolling
-      const touch = e.touches[0];
-      console.log("Touch move event:", touch);
-      this.handleMove(touch.clientX, touch.clientY);
-    }, { passive: false });
-
-    paper.addEventListener('touchstart', (e) => {
-      if (this.holdingPaper) return;
-      const touch = e.touches[0];
-      console.log("Touch start event:", touch);
-      this.handleStart(touch.clientX, touch.clientY, 0);
-    }, { passive: false });
-
-    window.addEventListener('touchend', (e) => {
-      console.log("Touch end event");
+    // Handle touch end
+    window.addEventListener('touchend', () => {
       this.handleEnd();
     }, { passive: false });
   }
 
   handleMove(clientX, clientY) {
+    if (!this.holdingPaper) return;
+    
     if (!this.rotating) {
       this.mouseX = clientX;
       this.mouseY = clientY;
@@ -85,8 +85,9 @@ class Paper {
   }
 
   handleStart(clientX, clientY, button) {
+    if (this.holdingPaper) return;
+
     this.holdingPaper = true;
-    
     paper.style.zIndex = highestZ;
     highestZ += 1;
 
@@ -106,8 +107,8 @@ class Paper {
   }
 }
 
+// Initialize papers
 const papers = Array.from(document.querySelectorAll('.paper'));
-
 papers.forEach(paper => {
   const p = new Paper();
   p.init(paper);
