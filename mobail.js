@@ -32,19 +32,23 @@ class Paper {
 
     // Touch events
     document.addEventListener('touchmove', (e) => {
+      e.preventDefault(); // Prevent default touch behavior like scrolling
       const touch = e.touches[0];
+      console.log("Touch move event:", touch);
       this.handleMove(touch.clientX, touch.clientY);
-    });
+    }, { passive: false });
 
     paper.addEventListener('touchstart', (e) => {
       if (this.holdingPaper) return;
       const touch = e.touches[0];
+      console.log("Touch start event:", touch);
       this.handleStart(touch.clientX, touch.clientY, 0);
-    });
+    }, { passive: false });
 
-    window.addEventListener('touchend', () => {
+    window.addEventListener('touchend', (e) => {
+      console.log("Touch end event");
       this.handleEnd();
-    });
+    }, { passive: false });
   }
 
   handleMove(clientX, clientY) {
@@ -108,4 +112,3 @@ papers.forEach(paper => {
   const p = new Paper();
   p.init(paper);
 });
-
